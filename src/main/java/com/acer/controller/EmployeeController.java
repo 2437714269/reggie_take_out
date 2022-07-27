@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
 import javax.servlet.http.HttpServletRequest;
+import java.time.LocalDateTime;
 
 
 /**
@@ -76,6 +76,38 @@ public class EmployeeController {
         // 删除Session中的employee
         request.getSession().getAttribute("employee");
         return R.success("退出成功");
+    }
+
+
+    /**
+     * 新增员工数据
+     * @author acer
+     * @date 17:33 2022/7/27
+     * @param request 返回
+     * @param employee 获取添加员工的数据
+     * @return com.acer.common.R<java.lang.String>
+    **/
+    @PostMapping
+    public R<String> save(HttpServletRequest request, @RequestBody Employee employee){
+
+        log.info("新增员工数据：{}",employee.toString());
+
+        //1.初始密码123456，利用DigestUtils对初始密码进行MD5加密处理
+        String password = DigestUtils.md5DigestAsHex("123456".getBytes());
+        employee.setPassword(password);
+        // 2.获取当前登录用户的Id
+        long createUserId = (long)request.getSession().getAttribute("employee");
+        // 3.获取创建时间和修改时间
+        employee.setCreateTime(LocalDateTime.now());
+        employee.setUpdateTime(LocalDateTime.now());
+
+        // 给创建人和修改人进行赋值
+        employee.setCreateUser(createUserId);
+        employee.setUpdateUser(createUserId);
+
+        // 插入数据
+        employeeService.save(employee);
+        return R.success("新增员工成功");
     }
 
 
