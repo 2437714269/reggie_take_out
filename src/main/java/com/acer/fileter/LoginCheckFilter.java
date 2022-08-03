@@ -1,6 +1,7 @@
 package com.acer.fileter;
 
 
+import com.acer.common.BaseContext;
 import com.acer.common.R;
 import com.alibaba.fastjson.JSON;
 import lombok.extern.slf4j.Slf4j;
@@ -42,6 +43,7 @@ public class LoginCheckFilter implements Filter {
 
         // 2.规定要放过的请求地址：登录、退出、两个静态资源
         String[] urls = new String[]{
+                // "/employee/",
                 "/employee/login",
                 "/employee/logout",
                 "/backend/**",
@@ -57,8 +59,12 @@ public class LoginCheckFilter implements Filter {
 
         // 4.已登录，直接放行
         if (request.getSession().getAttribute("employee") != null){
+
+            Long userId = (Long) request.getSession().getAttribute("user");
+            BaseContext.setCurrentId(userId);
+
             System.out.println(request.getSession().getAttribute("employee"));
-            log.info("用户已登录，不需要拦截,用户id为：[]",request.getSession().getAttribute("employee"));
+            log.info("用户已登录，不需要拦截,用户id为：{}",request.getSession().getAttribute("employee"));
             filterChain.doFilter(request,response);
             return;
         }
